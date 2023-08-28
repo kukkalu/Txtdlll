@@ -286,48 +286,48 @@ async def account_login(bot: Client, m: Message):
                    cmd = f'yt-dlp -o "{name}.pdf" "{url1}"'
                 else:
                     cmd = f'yt-dlp -o "{name}.mp4" --no-keep-video --no-check-certificate --remux-video mkv "{url1}"'
-            try:
-                print("❤❤❤❤❤")
-                download_cmd = f"{cmd} -R 25 --fragment-retries 25 --external-downloader aria2c --downloader-args 'aria2c: -x 16 -j 32'"
-                print("💕")
-                os.system(download_cmd)
-                
-                print("💕💕")
-
-                if os.path.isfile(f"{name}.mkv"):
-                    filename = f"{name}.mkv"
-                elif os.path.isfile(f"{name}.mp4"):
-                    filename = f"{name}.mp4"  
-                elif os.path.isfile(f"{name}.pdf"):
-                    filename = f"{name}.pdf"  
-                print("💕💕💕")
-                subprocess.run(f'ffmpeg -i "{filename}" -ss 00:01:00 -vframes 1 "{filename}.jpg"', shell=True)
-                await prog.delete (True)
-                reply = await m.reply_text(f"Uploading - ```{name}```")
                 try:
-                    if thumb == "no":
-                        thumbnail = f"{filename}.jpg"
+                   print("❤❤❤❤❤")
+                   download_cmd = f"{cmd} -R 25 --fragment-retries 25 --external-downloader aria2c --downloader-args 'aria2c: -x 16 -j 32'"
+                   print("💕")
+                   os.system(download_cmd)
+                
+                   print("💕💕")
+
+                   if os.path.isfile(f"{name}.mkv"):
+                       filename = f"{name}.mkv"
+                   elif os.path.isfile(f"{name}.mp4"):
+                       filename = f"{name}.mp4"  
+                   elif os.path.isfile(f"{name}.pdf"):
+                       filename = f"{name}.pdf"  
+                   print("💕💕💕")
+                   subprocess.run(f'ffmpeg -i "{filename}" -ss 00:01:00 -vframes 1 "{filename}.jpg"', shell=True)
+                   await prog.delete (True)
+                   reply = await m.reply_text(f"Uploading - ```{name}```")
+                   try:
+                       if thumb == "no":
+                          thumbnail = f"{filename}.jpg"
+                       else:
+                          thumbnail = thumb
+                    except Exception as e:
+                        await m.reply_text(str(e))
+
+                    dur = int(helper.duration(filename))
+
+                    start_time = time.time()
+                    if "pdf" in url1:
+                       await m.reply_document(filename,caption=cc)
                     else:
-                        thumbnail = thumb
-                except Exception as e:
-                    await m.reply_text(str(e))
+                       await m.reply_video(filename,supports_streaming=True,height=720,width=1280,caption=cc,duration=dur,thumb=thumbnail, progress=progress_bar,progress_args=(reply,start_time) )
+                    count+=1
+                    os.remove(filename)
 
-                dur = int(helper.duration(filename))
-
-                start_time = time.time()
-                if "pdf" in url1:
-                    await m.reply_document(filename,caption=cc)
-                else:
-                    await m.reply_video(filename,supports_streaming=True,height=720,width=1280,caption=cc,duration=dur,thumb=thumbnail, progress=progress_bar,progress_args=(reply,start_time) )
-                count+=1
-                os.remove(filename)
-
-                os.remove(f"{filename}.jpg")
-                await reply.delete (True)
-                time.sleep(1)
-            except Exception as e:
-                await m.reply_text(f"**downloading failed ❌**\n{str(e)}\n**Name** - {name}\n**Link** - `{url}` & `{url1}`")
-                continue 
+                    os.remove(f"{filename}.jpg")
+                    await reply.delete (True)
+                    time.sleep(1)
+                  except Exception as e:
+                    await m.reply_text(f"**downloading failed ❌**\n{str(e)}\n**Name** - {name}\n**Link** - `{url}` & `{url1}`")
+                  continue 
 
     except Exception as e:
         await m.reply_text(e)
