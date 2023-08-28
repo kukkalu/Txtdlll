@@ -282,45 +282,52 @@ async def account_login(bot: Client, m: Message):
                        
                        #await editable.delete(True)
                 
-                if cmd == "pdf" or ".pdf" in url or ".pdf" in name:
-                    try:
-                        
-                        ka = await helper.aio(url, name)
-                        await prog.delete(True)
-                        time.sleep(0.5)
-                        reply = await m.reply_text(f"Uploading - ```{name}```")
-                        time.sleep(0.5)
-                        start_time = time.time()
-                        await m.reply_document(
-                            ka,
-                            caption=
-                            f'**Title »** {name1} {res}.pdf\n**Caption »** {raw_text0}\n**Index »** {str(count).zfill(3)}'
-                        )
-                        count +=1
-                        # time.sleep(1)
-                        await reply.delete(True)
-                        time.sleep(0.5)
-                        os.remove(ka)
-                        time.sleep(0.5)
-                    except FloodWait as e:
-                        await m.reply_text(str(e))
-                        time.sleep(e.x)
-                        continue
-                else:
-                    
-                    res_file = await helper.download_video(url, cmd, name)
-                    filename = res_file
-                    await helper.send_vid(bot, m, cc, filename, thumb, name,
-                                          prog)
-                    count += 1
-                    time.sleep(0.5)
-
-            except Exception as e:
-                await m.reply_text(
-                    f"**Downloading Failed ❌**\n{str(e)}\n**Name** - {name}\n**Link** - `{url}`"
-                )
-                continue
+                if "pdf" in url:
+                cmd = f'yt-dlp -o "{name}.pdf" "{url1}"'
+            else:
+                cmd = f'yt-dlp -o "{name}.mp4" --no-keep-video --no-check-certificate --remux-video mkv "{url1}"'
+            try:
+                print("❤❤❤❤❤")
+                download_cmd = f"{cmd} -R 25 --fragment-retries 25 --external-downloader aria2c --downloader-args 'aria2c: -x 16 -j 32'"
+                print("💕")
+                os.system(download_cmd)
                 
+                print("💕💕")
+
+                if os.path.isfile(f"{name}.mkv"):
+                    filename = f"{name}.mkv"
+                elif os.path.isfile(f"{name}.mp4"):
+                    filename = f"{name}.mp4"  
+                elif os.path.isfile(f"{name}.pdf"):
+                    filename = f"{name}.pdf"  
+                print("💕💕💕")
+                subprocess.run(f'ffmpeg -i "{filename}" -ss 00:01:00 -vframes 1 "{filename}.jpg"', shell=True)
+                await prog.delete (True)
+                reply = await m.reply_text(f"Uploading - ```{name}```")
+                try:
+                    if thumb == "no":
+                        thumbnail = f"{filename}.jpg"
+                    else:
+                        thumbnail = thumb
+                except Exception as e:
+                    await m.reply_text(str(e))
+
+                dur = int(helper.duration(filename))
+
+                start_time = time.time()
+                if "pdf" in url1:
+                    await m.reply_document(filename,caption=cc)
+                else:
+                    await m.reply_video(filename,supports_streaming=True,height=720,width=1280,caption=cc,duration=dur,thumb=thumbnail, progress=progress_bar,progress_args=(reply,start_time) )
+                count+=1
+                os.remove(filename)
+
+                os.remove(f"{filename}.jpg")
+                await reply.delete (True)
+                time.sleep(1)
+            except Exception as e:
+                await m.reply_text(f"**downloading failed ❌**\n{str(e)}\n**Name** - {name}\n**Link** - `{url}` & `{url1}`")
+                continue 
 
     except Exception as e:
         await m.reply_text(e)
