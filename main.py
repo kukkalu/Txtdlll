@@ -161,7 +161,7 @@ async def account_login(bot: Client, m: Message):
             	params = (('url', f'{url}'),)
             	response = requests.get('https://api.classplusapp.com/cams/uploader/video/jw-signed-url', headers=headers, params=params)
             	url = response.json()['url']
-            	cmd = f'yt-dlp -o "{name}.%(ext)s" -f "{format_filter}" --no-keep-video --remux-video mkv "{url}"'
+            	cmd = f'yt-dlp -o "{name}.%(ext)s" -f "{format_filter}" --no-keep-video --no-check-certificate --remux-video mkv "{url}"'
             	#cmd = f'yt-dlp -o "{name}.%(ext)s" -f "bestvideo[height<={raw_text2}]+bestaudio/best[height<={raw_text2}]" --no-keep-video --remux-video mkv "{url}"'
             	#cmd = f'yt-dlp -o "{name}.%(ext)s" --no-keep-video --remux-video mkv "{url}"'
             elif "player.vimeo" in url:
