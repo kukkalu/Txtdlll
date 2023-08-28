@@ -181,13 +181,13 @@ async def account_login(bot: Client, m: Message):
             
             print("❤❤❤❤")
             name = f'{str(count).zfill(3)}) {name1}'    
-            Show = f"**Downloading:-**\n\n**Name :-** `{name}`\n\n**Url :-** `{url1}`"
+            Show = f"**Downloading:-**\n\n**Name :-** `{name}`\n\n**Url :-** `{url}`"
             prog = await m.reply_text(Show)
             cc = f'**Title »** {name1}.mkv\n**Caption »** {raw_text0}\n**Index »** {str(count).zfill(3)}'
             if "pdf" in url:
-                cmd = f'yt-dlp -o "{name}.pdf" "{url1}"'
+                cmd = f'yt-dlp -o "{name}.pdf" "{url}"'
             else:
-                cmd = f'yt-dlp -o "{name}.mp4" --no-keep-video --no-check-certificate --remux-video mkv "{url1}"'
+                cmd = f'yt-dlp -o "{name}.mp4" --no-keep-video --no-check-certificate --remux-video mkv "{url}"'
             try:
                 print("❤❤❤❤❤")
                 download_cmd = f"{cmd} -R 25 --fragment-retries 25 --external-downloader aria2c --downloader-args 'aria2c: -x 16 -j 32'"
@@ -217,7 +217,7 @@ async def account_login(bot: Client, m: Message):
                 dur = int(helper.duration(filename))
 
                 start_time = time.time()
-                if "pdf" in url1:
+                if "pdf" in url:
                     await m.reply_document(filename,caption=cc)
                 else:
                     await m.reply_video(filename,supports_streaming=True,height=720,width=1280,caption=cc,duration=dur,thumb=thumbnail, progress=progress_bar,progress_args=(reply,start_time) )
@@ -228,7 +228,7 @@ async def account_login(bot: Client, m: Message):
                 await reply.delete (True)
                 time.sleep(1)
             except Exception as e:
-                await m.reply_text(f"**downloading failed ❌**\n{str(e)}\n**Name** - {name}\n**Link** - `{url}` & `{url1}`")
+                await m.reply_text(f"**downloading failed ❌**\n{str(e)}\n**Name** - {name}\n**Link** - `{url}` & `{url}`")
                 continue 
 
     except Exception as e:
