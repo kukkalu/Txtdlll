@@ -81,13 +81,17 @@ async def download_video(url, cmd, name):
     download_cmd = f'{cmd} -R 25 --fragment-retries 25 --external-downloader aria2c --downloader-args "aria2c: -x 16 -j 32"'
     global failed_counter
     print(download_cmd)
+    print("💕")
     logging.info(download_cmd)
+    print("💕💕")
     k = subprocess.run(download_cmd, shell=True)
+    print("💕💕💕")
     if "visionias" in cmd and k.returncode != 0 and failed_counter <= 10:
         failed_counter += 1
         await asyncio.sleep(5)
         await download_video(url, cmd, name)
     failed_counter = 0
+    print("💕💕💕💕")
     try:
         if os.path.isfile(name):
             return name
@@ -109,6 +113,7 @@ async def download_video(url, cmd, name):
 
 async def send_vid(bot: Client, m: Message, cc, filename, thumb, name):
 
+    print("💕💕💕💕💕")
     subprocess.run(
         f'ffmpeg -i "{filename}" -ss 00:01:00 -vframes 1 "{filename}.jpg"',
         shell=True)
