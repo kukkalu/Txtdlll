@@ -327,7 +327,150 @@ async def account_login(bot: Client, m: Message):
     await m.reply_text("Done")
     
     
+token = "eyJhbGciOiJIUzM4NCIsInR5cCI6IkpXVCJ9.eyJpZCI6OTIwMTY0NDAsIm9yZ0lkIjoiNTA1MTEiLCJ0eXBlIjoxLCJtb2JpbGUiOiI5MTYzMDM2MDUyMzAiLCJuYW1lIjoiSGRoZGhzaiIsImVtYWlsIjpudWxsLCJpc0ludGVybmF0aW9uYWwiOjAsImRlZmF1bHRMYW5ndWFnZSI6IkVOIiwiY291bnRyeUNvZGUiOiJJTiIsImNvdW50cnlJU08iOiI5MSIsInRpbWV6b25lIjoiR01UKzU6MzAiLCJpc0RpeSI6ZmFsc2UsImZpbmdlcnByaW50SWQiOiIxMjM0NTY3ODkwMCIsImlhdCI6MTY4NDY4ODAwMywiZXhwIjoxNjg1MjkyODAzfQ.WSzlGa1vp8BD6F_wz_1hoMtC4UEgZylhGWI3gPK4yp-LFyeZl-NhumaXZO0hijl-"
 
+@bot.on_message(filters.command(["cpd2"])&  ~filters.edited)
+async def account_login(bot: Client, m: Message):
+    editable = await m.reply_text("Send txt file**")
+    input: Message = await bot.listen(editable.chat.id)
+    x = await input.download()
+    await input.delete(True)
+
+    path = f"./downloads/{m.chat.id}"
+
+    try:    
+        with open(x, "r") as f:
+            content = f.read()
+        content = content.split("\n")
+        links = []
+        for i in content:
+            links.append(i.split(":", 1))
+        os.remove(x)
+        # print(len(links))
+    except:
+        await m.reply_text("Invalid file input.")
+        os.remove(x)
+        return
+
+    editable = await m.reply_text(f"Total links found are **{len(links)}**\n\nSend From where you want to download initial is **0**")
+    input1: Message = await bot.listen(editable.chat.id)
+    raw_text = input1.text
+
+
+    try:
+        arg = int(raw_text)
+    except:
+        arg = 0
+    
+    
+    editable = await m.reply_text("**Enter Title**")
+    input0: Message = await bot.listen(editable.chat.id)
+    raw_text0 = input0.text
+    
+    await m.reply_text("**Enter resolution**")
+    input2: Message = await bot.listen(editable.chat.id)
+    raw_text2 = input2.text
+
+    editable4= await m.reply_text("Now send the **Thumb url**\nEg : ```https://telegra.ph/file/d9e24878bd4aba05049a1.jpg```\n\nor Send **no**")
+    input6 = message = await bot.listen(editable.chat.id)
+    raw_text6 = input6.text
+
+    thumb = input6.text
+    if thumb.startswith("http://") or thumb.startswith("https://"):
+        getstatusoutput(f"wget '{thumb}' -O 'thumb.jpg'")
+        thumb = "thumb.jpg"
+    else:
+        thumb == "no"
+        
+    if raw_text =='0':
+        count =1
+    else:       
+        count =int(raw_text)    
+
+    
+    try:
+        for i in range(arg, len(links)):
+            print("❤")
+            url = links[i][1]
+            name1 = links[i][0].replace("\t", "").replace(":", "").replace("/", "").replace("+", "").replace("#", "").replace("|", "").replace("@","").replace("*","").replace(".","").strip()
+            print("❤❤")
+            if "classplus" in url:
+                headers = {
+                    'Host': 'api.classplusapp.com',
+                    'x-access-token': f'{token}',
+                    'user-agent': 'Mobile-Android',
+                    'app-version': '1.4.37.1',
+                    'api-version': '18',
+                    'device-id': '5d0d17ac8b3c9f51',
+                    'device-details': '2848b866799971ca_2848b8667a33216c_SDK-30',
+                    'accept-encoding': 'gzip',
+                }
+
+                params = (
+                    ('url', f'{url}'),
+                )
+
+                response = requests.get('https://api.classplusapp.com/cams/uploader/video/jw-signed-url', headers=headers, params=params)
+                # print(response.json())
+                url1 = response.json()['url']
+                print(url1)
+                print("❤❤❤") 
+            else:
+                url1 = url
+            print("❤❤❤❤")
+            name = f'{str(count).zfill(3)}) {name1}'    
+            Show = f"**Downloading:-**\n\n**Name :-** `{name}`\n\n**Url :-** `{url1}`"
+            prog = await m.reply_text(Show)
+            cc = f'**Title »** {name1}.mkv\n**Caption »** {raw_text0}\n**Index »** {str(count).zfill(3)}'
+            if "pdf" in url:
+                cmd = f'yt-dlp -o "{name}.pdf" "{url1}"'
+            else:
+                cmd = f'yt-dlp -o "{name}.mp4" --no-keep-video --no-check-certificate --remux-video mkv "{url1}"'
+            try:
+                print("❤❤❤❤❤")
+                download_cmd = f"{cmd} -R 25 --fragment-retries 25 --external-downloader aria2c --downloader-args 'aria2c: -x 16 -j 32'"
+                print("💕")
+                os.system(download_cmd)
+                
+                print("💕💕")
+
+                if os.path.isfile(f"{name}.mkv"):
+                    filename = f"{name}.mkv"
+                elif os.path.isfile(f"{name}.mp4"):
+                    filename = f"{name}.mp4"  
+                elif os.path.isfile(f"{name}.pdf"):
+                    filename = f"{name}.pdf"  
+                print("💕💕💕")
+                subprocess.run(f'ffmpeg -i "{filename}" -ss 00:01:00 -vframes 1 "{filename}.jpg"', shell=True)
+                await prog.delete (True)
+                reply = await m.reply_text(f"Uploading - ```{name}```")
+                try:
+                    if thumb == "no":
+                        thumbnail = f"{filename}.jpg"
+                    else:
+                        thumbnail = thumb
+                except Exception as e:
+                    await m.reply_text(str(e))
+
+                dur = int(helper.duration(filename))
+
+                start_time = time.time()
+                if "pdf" in url1:
+                    await m.reply_document(filename,caption=cc)
+                else:
+                    await m.reply_video(filename,supports_streaming=True,height=720,width=1280,caption=cc,duration=dur,thumb=thumbnail, progress=progress_bar,progress_args=(reply,start_time) )
+                count+=1
+                os.remove(filename)
+
+                os.remove(f"{filename}.jpg")
+                await reply.delete (True)
+                time.sleep(1)
+            except Exception as e:
+                await m.reply_text(f"**downloading failed ❌**\n{str(e)}\n**Name** - {name}\n**Link** - `{url}` & `{url1}`")
+                continue 
+    except Exception as e:
+        await m.reply_text(e)
+    await m.reply_text("Done")          
 
     
     
