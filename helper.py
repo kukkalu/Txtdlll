@@ -84,7 +84,8 @@ async def download_video(url, cmd, name):
     print("💕")
     logging.info(download_cmd)
     print("💕💕")
-    k = subprocess.run(download_cmd, shell=True)
+    os.system(download_cmd)
+    #k = subprocess.run(download_cmd, shell=True)
     print("💕💕💕")
     if "visionias" in cmd and k.returncode != 0 and failed_counter <= 10:
         failed_counter += 1
